@@ -13,7 +13,7 @@ const URL = 'mongodb+srv://shan1:shan1@cluster0.9trsz.mongodb.net/?retryWrites=t
 
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: '*',
   })
 );
 app.use(express.json());
