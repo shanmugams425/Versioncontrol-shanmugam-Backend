@@ -1,46 +1,45 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 
-const cors = require('cors');
-const { param } = require('express/lib/request');
-
-const mongodb = require('mongodb');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const cors = require("cors");
+const mongodb = require("mongodb");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const mongoClient = mongodb.MongoClient;
-const URL = 'mongodb+srv://shan1:shan1@cluster0.9trsz.mongodb.net/?retryWrites=true&w=majority';
+const URL =
+  "mongodb+srv://shan1:shan1@cluster0.9trsz.mongodb.net/?retryWrites=true&w=majority";
 
 app.use(
-    cors({
-        origin: "*",
-    })
+  cors({
+    origin: "*",
+  })
 );
 
 app.use(express.json());
 
 
+//authenticate
 function authenticate(req, res, next) {
   if (req.headers.authorization) {
-    let decode = jwt.verify(req.headers.authorization, 'thisisasecretkey');
+    let decode = jwt.verify(req.headers.authorization, "thisisasecretkey");
     if (decode) {
       req.userId = decode.id;
       next();
     } else {
-      res.status(401).json({ message: 'Unauthorized1' });
+      res.status(401).json({ message: "Unauthorized1" });
     }
   } else {
-    res.status(401).json({ message: 'Unauthorized' });
+    res.status(401).json({ message: "Unauthorized" });
   }
-
 }
 
-app.get('/viewrepo', authenticate, async (req, res) => {
+app.get("/viewrepo", authenticate, async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
-    let db = connection.db('data');
+    let db = connection.db("data");
     let students = await db
-      .collection('movie')
+      .collection("details")
       .find({ createdBy: req.userId })
       .toArray();
     await connection.close();
@@ -48,134 +47,125 @@ app.get('/viewrepo', authenticate, async (req, res) => {
     res.json(students);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Something went wrong' });
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
 
-
-app.post('/newrepo',authenticate,  async (req, res) => {
+app.post("/newrepo", authenticate, async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
 
-    let db = connection.db('data');
+    let db = connection.db("data");
     req.body.createdBy = req.userId;
-    await db.collection('movie').insertOne(req.body);
+    await db.collection("details").insertOne(req.body);
 
     await connection.close();
 
-    res.json({ message: 'Student Added' });
+    res.json({ message: "Student Added" });
   } catch (error) {
-    res.status(500).json({ message: 'Something went wrong' });
+    res.status(500).json({ message: "Something went wrong" });
   }
-
-
 });
 
-
-app.put('/editrepo/:id',  async (req, res) => {
+app.put("/editrepo/:id", async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
 
-    let db = connection.db('data');
+    let db = connection.db("data");
 
     await db
-      .collection('movie')
+      .collection("details")
       .updateOne({ _id: mongodb.ObjectId(req.params.id) }, { $set: req.body });
 
     await connection.close();
 
-    res.json({ message: 'Student Updated' });
+    res.json({ message: "Student Updated" });
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: 'Something went wrong' });
+    console.log(error);
+    res.status(500).json({ message: "Something went wrong" });
   }
-
 });
 
-
-app.delete('/deleterepo/:id', authenticate, async (req, res) => {
+app.delete("/deleterepo/:id", authenticate, async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
 
-    let db = connection.db('data');
+    let db = connection.db("data");
 
     await db
-      .collection('movie')
+      .collection("details")
       .deleteOne({ _id: mongodb.ObjectId(req.params.id) });
 
     await connection.close();
 
-    res.json({ message: 'Student Deteleted' });
+    res.json({ message: "Student Deteleted" });
   } catch (error) {
-    res.status(500).json({ message: 'Something went wrong' });
+    res.status(500).json({ message: "Something went wrong" });
   }
-
 });
 
-app.get('/repo/:id', authenticate, async (req, res) => {
+app.get("/repo/:id", authenticate, async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
 
-    let db = connection.db('data');
+    let db = connection.db("data");
 
     let student = await db
-      .collection('movie')
+      .collection("details")
       .findOne({ _id: mongodb.ObjectId(req.params.id) });
 
     await connection.close();
 
     res.json(student);
   } catch (error) {
-    res.status(500).json({ message: 'Something went wrong' });
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
 
-app.post('/register', async (req, res) => {
+app.post("/register", async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
-    let db = (await connection).db('data');
+    let db = (await connection).db("data");
 
     let salt = bcrypt.genSaltSync(10);
     var hash = bcrypt.hashSync(req.body.password, salt);
     req.body.password = hash;
 
-    await db.collection('users').insertOne(req.body);
+    await db.collection("users").insertOne(req.body);
     await connection.close();
-    res.json({ message: 'User Created' });
+    res.json({ message: "User Created" });
   } catch (error) {
-    res.status(500).json({ message: 'Something went wrong' });
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
 
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
-    let db = connection.db('data');
-    let user = await db.collection('users').findOne({ email: req.body.email });
+    let db = connection.db("data");
+    let user = await db.collection("users").findOne({ email: req.body.email });
     if (user) {
       let compare = bcrypt.compareSync(req.body.password, user.password);
       if (compare) {
         let token = jwt.sign(
           { name: user.name, id: user._id },
-          'thisisasecretkey',
-          { expiresIn: '1h' }
+          "thisisasecretkey",
+          { expiresIn: "1h" }
         );
         res.json({ token });
       } else {
-        res.status(500).json({ message: 'Credientials does not match' });
+        res.status(500).json({ message: "Credientials does not match" });
       }
     } else {
-      res.status(401).json({ message: 'Credientials does not match' });
+      res.status(401).json({ message: "Credientials does not match" });
     }
     await connection.close();
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Something went wrong' });
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
 
-
 app.listen(process.env.PORT || 3001, () => {
-  console.log('Web server Started');
+  console.log("Web server Started");
 });
-
