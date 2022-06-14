@@ -35,7 +35,7 @@ function authenticate(req, res, next) {
 
 }
 
-app.get('/students', authenticate, async (req, res) => {
+app.get('/viewrepo', authenticate, async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
     let db = connection.db('data');
@@ -53,7 +53,7 @@ app.get('/students', authenticate, async (req, res) => {
 });
 
 
-app.post('/student',authenticate,  async (req, res) => {
+app.post('/newrepo',authenticate,  async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
 
@@ -72,7 +72,7 @@ app.post('/student',authenticate,  async (req, res) => {
 });
 
 
-app.put('/student/:id',  async (req, res) => {
+app.put('/editrepo/:id',  async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
 
@@ -93,7 +93,7 @@ app.put('/student/:id',  async (req, res) => {
 });
 
 
-app.delete('/student/:id', authenticate, async (req, res) => {
+app.delete('/deleterepo/:id', authenticate, async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
 
@@ -112,7 +112,7 @@ app.delete('/student/:id', authenticate, async (req, res) => {
 
 });
 
-app.get('/student/:id', authenticate, async (req, res) => {
+app.get('/repo/:id', authenticate, async (req, res) => {
   try {
     let connection = await mongoClient.connect(URL);
 
