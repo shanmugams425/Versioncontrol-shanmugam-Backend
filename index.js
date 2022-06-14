@@ -12,10 +12,11 @@ const mongoClient = mongodb.MongoClient;
 const URL = 'mongodb+srv://shan1:shan1@cluster0.9trsz.mongodb.net/?retryWrites=true&w=majority';
 
 app.use(
-  cors({
-    origin: 'http://localhost:3000',
-  })
+    cors({
+        origin: "*",
+    })
 );
+
 app.use(express.json());
 
 
