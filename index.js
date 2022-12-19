@@ -18,7 +18,6 @@ app.use(
 
 app.use(express.json());
 
-
 //authenticate
 function authenticate(req, res, next) {
   if (req.headers.authorization) {
@@ -141,6 +140,10 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   try {
+    if (!req.email || !req.password) {
+      res.status(500).json({ message: "This fields cannot be empty" });
+    }
+
     let connection = await mongoClient.connect(URL);
     let db = connection.db("data");
     let user = await db.collection("users").findOne({ email: req.body.email });
